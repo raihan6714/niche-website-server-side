@@ -20,7 +20,7 @@ async function run() {
         const database = client.db("motoBike");
         const bikeCollection = database.collection("bikes");
         const ordersCollection = database.collection("orders");
-        const usersCollectionc = database.collection("users");
+        const usersCollection = database.collection("users");
         const reviewCollectionc = database.collection("reviews");
 
         //add bikeCollection
@@ -47,11 +47,13 @@ async function run() {
             // console.log(result);
         });
 
-        // insert order
-        app.post("/addOrders", async (req, res) => {
-            const result = await ordersCollection.insertOne(req.body);
+        //DELETE bike
+        app.delete('/deletebike/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await bikeCollection.deleteOne(query);
             res.send(result);
-        });
+        })
 
         // add review
         app.post("/addReview", async (req, res) => {
@@ -68,20 +70,20 @@ async function run() {
         //add user
         app.post('/users', async (req, res) => {
             const user = req.body;
-            const result = await usersCollectionc.insertOne(user);
-            console.log(result);
+            const result = await usersCollection.insertOne(user);
+            // console.log(result);
             res.json(result);
         });
 
         //make admin
         app.put("/makeAdmin", async (req, res) => {
             const filter = { email: req.body.email };
-            const result = await usersCollectionc.find(filter).toArray();
+            const result = await usersCollection.find(filter).toArray();
             if (result) {
-                const documents = await usersCollectionc.updateOne(filter, {
+                const documents = await usersCollection.updateOne(filter, {
                     $set: { role: "admin" },
                 });
-                console.log(documents);
+                // console.log(documents);
             }
         });
 
@@ -94,6 +96,11 @@ async function run() {
             res.send(result);
         });
 
+        // insert order
+        app.post("/addOrders", async (req, res) => {
+            const result = await ordersCollection.insertOne(req.body);
+            res.send(result);
+        });
         // all orders
         app.get("/allOrders", async (req, res) => {
             // console.log("hello");
@@ -120,8 +127,16 @@ async function run() {
                 },
             });
             res.send(result);
-            console.log(result);
+            // console.log(result);
         });
+
+        //DELETE order
+        app.delete('/deleteOrder/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await ordersCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
     } finally {
